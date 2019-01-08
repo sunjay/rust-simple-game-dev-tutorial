@@ -5,3 +5,4 @@ authors = ["Sunjay Varma <varma.sunjay@gmail.com>"]
 edition = "2018"
 
 [dependencies]
+sdl2 = "0.32.1"
