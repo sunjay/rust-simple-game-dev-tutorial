@@ -1,0 +1,7 @@
+[package]
+name = "game-tutorial"
+version = "0.1.0"
+authors = ["Sunjay Varma <varma.sunjay@gmail.com>"]
+edition = "2018"
+
+[dependencies]
