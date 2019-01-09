@@ -2,7 +2,7 @@ use specs::prelude::*;
 
 use crate::components::*;
 
-struct Physics;
+pub struct Physics;
 
 impl<'a> System<'a> for Physics {
     type SystemData = (WriteStorage<'a, Position>, ReadStorage<'a, Velocity>);

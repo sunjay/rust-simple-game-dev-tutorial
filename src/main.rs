@@ -98,8 +98,15 @@ fn main() -> Result<(), String> {
 
     let mut canvas = window.into_canvas().build()
         .expect("could not make a canvas");
-
     let texture_creator = canvas.texture_creator();
+
+    let mut dispatcher = DispatcherBuilder::new()
+        .with(physics::Physics, "Physics", &[])
+        .with(animator::Animator, "Animator", &[])
+        .build();
+
+    let mut world = World::new();
+    dispatcher.setup(&mut world.res);
 
     let textures = [
         texture_creator.load_texture("assets/raptor.png")?,
@@ -115,8 +122,6 @@ fn main() -> Result<(), String> {
         left_frames: character_animation_frames(player_spritesheet, player_top_left_frame, Direction::Left),
         right_frames: character_animation_frames(player_spritesheet, player_top_left_frame, Direction::Right),
     };
-
-    let mut world = World::new();
 
     world.create_entity()
         .with(Position(Point::new(0, 0)))
@@ -162,7 +167,8 @@ fn main() -> Result<(), String> {
         }
 
         // Update
-        //TODO: Do with specs!
+        dispatcher.dispatch(&mut world.res);
+        world.maintain();
 
         // Render
         i = (i + 1) % 255;
