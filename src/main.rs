@@ -1,5 +1,6 @@
 mod components;
 mod physics;
+mod animator;
 
 use sdl2::pixels::Color;
 use sdl2::event::Event;
@@ -82,17 +83,6 @@ fn render(
     Ok(())
 }
 
-// Update player a fixed amount based on their speed.
-// WARNING: Calling this function too often or at a variable speed will cause the player's speed
-// to be unpredictable!
-fn update_player(player: &mut Player) {
-    // Only continue to animate if the player is moving
-    if player.speed != 0 {
-        // Cheat: using the fact that all animations are 3 frames (NOT extensible)
-        player.current_frame = (player.current_frame + 1) % 3;
-    }
-}
-
 fn main() -> Result<(), String> {
     let sdl_context = sdl2::init()?;
     let video_subsystem = sdl_context.video()?;
@@ -172,7 +162,7 @@ fn main() -> Result<(), String> {
         }
 
         // Update
-        update_player(&mut player);
+        //TODO: Do with specs!
 
         // Render
         i = (i + 1) % 255;
