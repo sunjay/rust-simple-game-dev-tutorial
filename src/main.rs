@@ -7,7 +7,7 @@ use sdl2::rect::{Point, Rect};
 use sdl2::image::{self, LoadTexture, InitFlag};
 use std::time::Duration;
 
-const PLAYER_MOVEMENT_SPEED: i32 = 5;
+const PLAYER_MOVEMENT_SPEED: i32 = 20;
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
 enum Direction {
@@ -164,7 +164,7 @@ fn main() -> Result<(), String> {
         render(&mut canvas, Color::RGB(i, 64, 255 - i), &texture, &player)?;
 
         // Time management!
-        ::std::thread::sleep(Duration::new(0, 1_000_000_000u32 / 60));
+        ::std::thread::sleep(Duration::new(0, 1_000_000_000u32 / 20));
     }
 
     Ok(())
