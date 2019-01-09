@@ -1,4 +1,5 @@
 mod components;
+mod physics;
 
 use sdl2::pixels::Color;
 use sdl2::event::Event;
@@ -85,22 +86,6 @@ fn render(
 // WARNING: Calling this function too often or at a variable speed will cause the player's speed
 // to be unpredictable!
 fn update_player(player: &mut Player) {
-    use self::Direction::*;
-    match player.direction {
-        Left => {
-            player.position = player.position.offset(-player.speed, 0);
-        },
-        Right => {
-            player.position = player.position.offset(player.speed, 0);
-        },
-        Up => {
-            player.position = player.position.offset(0, -player.speed);
-        },
-        Down => {
-            player.position = player.position.offset(0, player.speed);
-        },
-    }
-
     // Only continue to animate if the player is moving
     if player.speed != 0 {
         // Cheat: using the fact that all animations are 3 frames (NOT extensible)
