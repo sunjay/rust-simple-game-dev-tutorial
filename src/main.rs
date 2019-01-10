@@ -2,11 +2,11 @@ mod components;
 mod physics;
 mod animator;
 mod keyboard;
+mod renderer;
 
-use sdl2::pixels::Color;
 use sdl2::event::Event;
 use sdl2::keyboard::Keycode;
-use sdl2::render::{WindowCanvas, Texture};
+use sdl2::pixels::Color;
 use sdl2::rect::{Point, Rect};
 // "self" imports the "image" module itself as well as everything else we listed
 use sdl2::image::{self, LoadTexture, InitFlag};
@@ -58,35 +58,6 @@ fn character_animation_frames(spritesheet: usize, top_left_frame: Rect, directio
     frames
 }
 
-fn render(
-    canvas: &mut WindowCanvas,
-    color: Color,
-    texture: &Texture,
-    player: &Player,
-) -> Result<(), String> {
-    canvas.set_draw_color(color);
-    canvas.clear();
-
-    let (width, height) = canvas.output_size()?;
-
-    let (frame_width, frame_height) = player.sprite.size();
-    let current_frame = Rect::new(
-        player.sprite.x() + frame_width as i32 * player.current_frame,
-        player.sprite.y() + frame_height as  i32 * direction_spritesheet_row(player.direction),
-        frame_width,
-        frame_height,
-    );
-
-    // Treat the center of the screen as the (0, 0) coordinate
-    let screen_position = player.position + Point::new(width as i32 / 2, height as i32 / 2);
-    let screen_rect = Rect::from_center(screen_position, frame_width, frame_height);
-    canvas.copy(texture, current_frame, screen_rect)?;
-
-    canvas.present();
-
-    Ok(())
-}
-
 fn main() -> Result<(), String> {
     let sdl_context = sdl2::init()?;
     let video_subsystem = sdl_context.video()?;
@@ -112,6 +83,7 @@ fn main() -> Result<(), String> {
 
     let mut world = World::new();
     dispatcher.setup(&mut world.res);
+    renderer::SystemData::setup(&mut world.res);
 
     // Initialize resource
     let movement_command: Option<MovementCommand> = None;
@@ -182,7 +154,7 @@ fn main() -> Result<(), String> {
 
         // Render
         i = (i + 1) % 255;
-        render(&mut canvas, Color::RGB(i, 64, 255 - i), &texture, &player)?;
+        renderer::render(&mut canvas, Color::RGB(i, 64, 255 - i), &textures, world.system_data())?;
 
         // Time management!
         ::std::thread::sleep(Duration::new(0, 1_000_000_000u32 / 20));
