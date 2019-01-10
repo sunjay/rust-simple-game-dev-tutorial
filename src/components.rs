@@ -14,6 +14,10 @@ pub enum Direction {
 #[storage(NullStorage)]
 pub struct KeyboardControlled;
 
+#[derive(Component, Debug, Default)]
+#[storage(NullStorage)]
+pub struct Enemy;
+
 /// The current position of a given entity
 #[derive(Component, Debug)]
 #[storage(VecStorage)]
