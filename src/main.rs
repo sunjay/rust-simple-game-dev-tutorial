@@ -58,6 +58,45 @@ fn character_animation_frames(spritesheet: usize, top_left_frame: Rect, directio
     frames
 }
 
+fn initialize_player(world: &mut World, player_spritesheet: usize) {
+    let player_top_left_frame = Rect::new(0, 0, 94, 100);
+
+    let player_animation = MovementAnimation {
+        current_frame: 0,
+        up_frames: character_animation_frames(player_spritesheet, player_top_left_frame, Direction::Up),
+        down_frames: character_animation_frames(player_spritesheet, player_top_left_frame, Direction::Down),
+        left_frames: character_animation_frames(player_spritesheet, player_top_left_frame, Direction::Left),
+        right_frames: character_animation_frames(player_spritesheet, player_top_left_frame, Direction::Right),
+    };
+
+    world.create_entity()
+        .with(KeyboardControlled)
+        .with(Position(Point::new(0, 0)))
+        .with(Velocity {speed: 0, direction: Direction::Right})
+        .with(player_animation.right_frames[0].clone())
+        .with(player_animation)
+        .build();
+}
+
+fn initialize_enemy(world: &mut World, enemy_spritesheet: usize, position: Point) {
+    let enemy_top_left_frame = Rect::new(0, 0, 122, 114);
+
+    let enemy_animation = MovementAnimation {
+        current_frame: 0,
+        up_frames: character_animation_frames(enemy_spritesheet, enemy_top_left_frame, Direction::Up),
+        down_frames: character_animation_frames(enemy_spritesheet, enemy_top_left_frame, Direction::Down),
+        left_frames: character_animation_frames(enemy_spritesheet, enemy_top_left_frame, Direction::Left),
+        right_frames: character_animation_frames(enemy_spritesheet, enemy_top_left_frame, Direction::Right),
+    };
+
+    world.create_entity()
+        .with(Position(position))
+        .with(Velocity {speed: 0, direction: Direction::Right})
+        .with(enemy_animation.right_frames[0].clone())
+        .with(enemy_animation)
+        .build();
+}
+
 fn main() -> Result<(), String> {
     let sdl_context = sdl2::init()?;
     let video_subsystem = sdl_context.video()?;
@@ -91,26 +130,18 @@ fn main() -> Result<(), String> {
 
     let textures = [
         texture_creator.load_texture("assets/raptor.png")?,
+        texture_creator.load_texture("assets/phoenix.png")?,
     ];
     // First texture in textures array
     let player_spritesheet = 0;
-    let player_top_left_frame = Rect::new(0, 0, 94, 100);
+    // Second texture in the textures array
+    let enemy_spritesheet = 1;
 
-    let player_animation = MovementAnimation {
-        current_frame: 0,
-        up_frames: character_animation_frames(player_spritesheet, player_top_left_frame, Direction::Up),
-        down_frames: character_animation_frames(player_spritesheet, player_top_left_frame, Direction::Down),
-        left_frames: character_animation_frames(player_spritesheet, player_top_left_frame, Direction::Left),
-        right_frames: character_animation_frames(player_spritesheet, player_top_left_frame, Direction::Right),
-    };
+    initialize_player(&mut world, player_spritesheet);
 
-    world.create_entity()
-        .with(KeyboardControlled)
-        .with(Position(Point::new(0, 0)))
-        .with(Velocity {speed: 0, direction: Direction::Right})
-        .with(player_animation.right_frames[0].clone())
-        .with(player_animation)
-        .build();
+    initialize_enemy(&mut world, enemy_spritesheet, Point::new(-150, -150));
+    initialize_enemy(&mut world, enemy_spritesheet, Point::new(150, -190));
+    initialize_enemy(&mut world, enemy_spritesheet, Point::new(-150, 170));
 
     let mut event_pump = sdl_context.event_pump()?;
     let mut i = 0;
