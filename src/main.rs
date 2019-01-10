@@ -1,6 +1,7 @@
 mod components;
 mod physics;
 mod animator;
+mod keyboard;
 
 use sdl2::pixels::Color;
 use sdl2::event::Event;
@@ -16,7 +17,10 @@ use std::time::Duration;
 
 use crate::components::*;
 
-const PLAYER_MOVEMENT_SPEED: i32 = 20;
+pub enum MovementCommand {
+    Stop,
+    Move(Direction),
+}
 
 /// Returns the row of the spritesheet corresponding to the given direction
 fn direction_spritesheet_row(direction: Direction) -> i32 {
@@ -101,12 +105,17 @@ fn main() -> Result<(), String> {
     let texture_creator = canvas.texture_creator();
 
     let mut dispatcher = DispatcherBuilder::new()
-        .with(physics::Physics, "Physics", &[])
-        .with(animator::Animator, "Animator", &[])
+        .with(keyboard::Keyboard, "Keyboard", &[])
+        .with(physics::Physics, "Physics", &["Keyboard"])
+        .with(animator::Animator, "Animator", &["Keyboard"])
         .build();
 
     let mut world = World::new();
     dispatcher.setup(&mut world.res);
+
+    // Initialize resource
+    let movement_command: Option<MovementCommand> = None;
+    world.add_resource(movement_command);
 
     let textures = [
         texture_creator.load_texture("assets/raptor.png")?,
@@ -124,6 +133,7 @@ fn main() -> Result<(), String> {
     };
 
     world.create_entity()
+        .with(KeyboardControlled)
         .with(Position(Point::new(0, 0)))
         .with(Velocity {speed: 0, direction: Direction::Right})
         .with(player_animation.right_frames[0].clone())
@@ -133,6 +143,8 @@ fn main() -> Result<(), String> {
     let mut event_pump = sdl_context.event_pump()?;
     let mut i = 0;
     'running: loop {
+        // None - no change, Some(MovementCommand) - perform movement
+        let mut movement_command = None;
         // Handle events
         for event in event_pump.poll_iter() {
             match event {
@@ -141,30 +153,28 @@ fn main() -> Result<(), String> {
                     break 'running
                 },
                 Event::KeyDown { keycode: Some(Keycode::Left), repeat: false, .. } => {
-                    player.speed = PLAYER_MOVEMENT_SPEED;
-                    player.direction = Direction::Left;
+                    movement_command = Some(MovementCommand::Move(Direction::Left));
                 },
                 Event::KeyDown { keycode: Some(Keycode::Right), repeat: false, .. } => {
-                    player.speed = PLAYER_MOVEMENT_SPEED;
-                    player.direction = Direction::Right;
+                    movement_command = Some(MovementCommand::Move(Direction::Right));
                 },
                 Event::KeyDown { keycode: Some(Keycode::Up), repeat: false, .. } => {
-                    player.speed = PLAYER_MOVEMENT_SPEED;
-                    player.direction = Direction::Up;
+                    movement_command = Some(MovementCommand::Move(Direction::Up));
                 },
                 Event::KeyDown { keycode: Some(Keycode::Down), repeat: false, .. } => {
-                    player.speed = PLAYER_MOVEMENT_SPEED;
-                    player.direction = Direction::Down;
+                    movement_command = Some(MovementCommand::Move(Direction::Down));
                 },
                 Event::KeyUp { keycode: Some(Keycode::Left), repeat: false, .. } |
                 Event::KeyUp { keycode: Some(Keycode::Right), repeat: false, .. } |
                 Event::KeyUp { keycode: Some(Keycode::Up), repeat: false, .. } |
                 Event::KeyUp { keycode: Some(Keycode::Down), repeat: false, .. } => {
-                    player.speed = 0;
+                    movement_command = Some(MovementCommand::Stop);
                 },
                 _ => {}
             }
         }
+
+        *world.write_resource() = movement_command;
 
         // Update
         dispatcher.dispatch(&mut world.res);
