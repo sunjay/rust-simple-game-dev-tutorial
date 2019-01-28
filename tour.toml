@@ -1,0 +1,4 @@
+[tour]
+title = "Learn Game Development in Rust"
+description = "This tutorial will walk you through creating a game in the Rust programming language step-by-step."
+authors = ["Sunjay Varma <varma.sunjay@gmail.com>"]
