@@ -7,7 +7,7 @@
 
 ## Core Concepts
 
-- [Game Programming Basics](basics.md)
+- [Game Programming Basics](./basics.md)
   - [The Game Loop](./game-loop.md)
   - Object-Oriented Game Programming
   - Entity-Component-Systems (Overview)
