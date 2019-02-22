@@ -25,7 +25,7 @@
 ## Entity-Component-Systems
 
 - [Adding the Entity-Component-Systems](./adding-ecs.md)
-  - Dividing State into Components
+  - [Dividing State into Components](./dividing-state)
   - Refactor: Multiple Modules
   - The Physics System
   - The Animator System
